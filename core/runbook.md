@@ -586,7 +586,7 @@ Der Pfad dafür steht in Zeile 2 von `.agent-template-version`, die du in Phase 
 
 Sag ihm dabei den Preis: Der Skill kostet seine Beschreibung in jedem Zug dieses Projekts. Er ist die Rückfallebene, nicht die bessere Lösung.
 
-**Wenn beides fehlt — eine Verteilkopie** (öffentliche Fassung, Lesekopie auf einer Freigabe): Dann gibt es **keinen Rückkanal**, und das ist gewollt (Nutzerentscheidung vom 2026-11-16). Installier nichts, leg keine `.template-feedback.md` an, und Schritt 3c entfällt. Sag dem Nutzer nur: „Diese Kopie des Basisagenten hat keinen Feedback-Weg; die Einrichtung ist davon nicht berührt."
+**Wenn beides fehlt — eine Verteilkopie** (öffentliche Fassung, Lesekopie auf einer Freigabe): Dann gibt es **keinen Rückkanal**, und das ist gewollt (Nutzerentscheidung vom 2026-11-16). Installier nichts, leg keine `.template-feedback.md` an, und Schritt 3c entfällt. **Sag dem Nutzer nichts dazu** — er kennt den Rückkanal nicht, und ein Hinweis auf etwas, das fehlt, wirft nur Fragen auf.
 
 **Schritt 2 — Versionsstempel fortschreiben.** Die Datei `.agent-template-version` entstand am Ende von Phase 2. Prüfe alle drei Zeilen — Version und Profil, den Templatepfad, dazu `phase9:` — und schreib sie fort, falls sich unterwegs etwas geändert hat. Fehlt sie oder fehlt ihr eine Zeile, leg sie jetzt vollständig an.
 
@@ -604,7 +604,7 @@ Sag ihm dabei den Preis: Der Skill kostet seine Beschreibung in jedem Zug dieses
 - [ ] Keine MCP-Server verbunden, die nicht gebraucht werden
 - [ ] Hilfsagenten nach der Wahl des Nutzers: gesperrt (Vorgabe) — oder erlaubt und Rechercheagenten nach seiner Stufe angelegt, bei „unbegrenzt" keine Datei (→ Adapter)
 - [ ] `.agent-template-version` geschrieben — Version, Profil, Templatepfad **und** `phase9: offen`
-- [ ] Der Feedback-Weg ist geklärt: direkt ins Journal, Skill installiert, oder Verteilkopie ohne Rückkanal
+- [ ] Der Feedback-Weg ist geklärt: direkt ins Journal oder Skill installiert. In einer Verteilkopie lässt du den Punkt in der Meldung weg
 - [ ] Der Übergabe-Auslöser steht in der Regeldatei **und** der Skill liegt im Projekt (→ Phase 2 für die Zeilen, Phase 5 Schritt 0 für den Skill)
 
 **→ Profil, Abschnitt „Phase 9".** Die zusätzlichen Prüfpunkte dieser Projektart kommen hinzu — arbeite sie mit ab.
