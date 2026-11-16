@@ -112,7 +112,6 @@ Das war der ganze Vorgang. Kein Kopieren, kein Skript, keine Installation.
 | `quellen.md` — nur Textprojekte | 4 | vom Agenten angelegt, falls du willst |
 | `.claude/skills/uebergabe/` | 5 | gesetzt — kostet nichts, bis du `/uebergabe` tippst |
 | `uebergabe/` mit `_vorlage.md` | 5 | von `/uebergabe einrichten` angelegt |
-| `.claude/skills/template-feedback/` | 9 | nur bei Einrichtung aus der Entwicklungskopie, wenn deren Journal nicht erreichbar ist. Verteilkopien haben keinen Rückkanal |
 | Ablaufgerüst, weitere Skills | 3 und 5 | **du** installierst, der Agent gibt dir den Befehl |
 
 Danach hat dein Projekt **keine Verbindung** zum Basisagent. Du kannst das Template verschieben, umbenennen oder löschen — dein eingerichtetes Projekt läuft weiter.
@@ -131,8 +130,6 @@ core/                      werkzeug- und artneutral
   schnell.md               Schnellmodus: Vorgaben statt Rückfragen, legt sich übers Runbook
   verworfen.md             Warum etwas nicht drin ist
   skills/
-    template-feedback/     Skill: erfassen, bewerten, einsammeln
-                           (nur Entwicklungskopie)
     uebergabe/             Skill: Aufgabenstand sichern, dann /clear
                            SKILL.md + ADDON.md (Weg ohne Basisagent)
 
@@ -151,7 +148,7 @@ claudecode/                Adapter Claude Code — Achse Werkzeug
   hooks/kennungen.ps1      Hook: Kennungen im Bestand suchen, Muster in Phase 1
 ```
 
-Verweise auf `feedback/…` und auf Journaleinträge in den Dateien zeigen in die Entwicklungskopie. Sie belegen, woher eine Regel kommt; für die Anwendung brauchst du sie nicht.
+Quellenangaben wie „Journal 2026-09-22, Textprojekt J" in den Dateien verweisen auf interne Aufzeichnungen der Entwicklung. Sie belegen, woher eine Regel kommt; für die Anwendung brauchst du sie nicht.
 
 **Zwei Achsen, eine Regel.** Der Adapter sagt, *wie* ein Werkzeug etwas tut. Das Profil sagt, *was* für eine Projektart überhaupt zu tun ist. Beide enthalten nur, was ohne sie sinnlos wäre. Alles, was für alle gilt, steht genau einmal in `core/` — wenn ein Adapter oder ein Profil anfängt, allgemeine Regeln zu formulieren, gehören die ins Runbook.
 
