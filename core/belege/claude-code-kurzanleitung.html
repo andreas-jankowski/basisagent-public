@@ -1,0 +1,606 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Der Claude-Code-Arbeitszyklus</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bitter:wght@500;700&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+
+<style>
+  :root {
+    --paper:      #f4f6f7;
+    --card:       #ffffff;
+    --ink:        #17202b;
+    --muted:      #5c6b73;
+    --rule:       #d3dcde;
+    --accent:     #0f6a6d;
+    --accent-soft:#e2eeee;
+    --signal:     #a63f1e;
+    --signal-soft:#f6e7e0;
+
+    --f-head: "Bitter", Georgia, "Times New Roman", serif;
+    --f-body: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+    --f-mono: "JetBrains Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+
+    --measure: 62ch;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper:      #101819;
+      --card:       #162022;
+      --ink:        #e4ebec;
+      --muted:      #93a4a8;
+      --rule:       #2b3a3d;
+      --accent:     #5cc2c0;
+      --accent-soft:#17302f;
+      --signal:     #e08b62;
+      --signal-soft:#2e1f18;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --paper:      #101819;
+    --card:       #162022;
+    --ink:        #e4ebec;
+    --muted:      #93a4a8;
+    --rule:       #2b3a3d;
+    --accent:     #5cc2c0;
+    --accent-soft:#17302f;
+    --signal:     #e08b62;
+    --signal-soft:#2e1f18;
+  }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--f-body);
+    font-size: 17px;
+    line-height: 1.62;
+    margin: 0;
+    padding: 0 1.25rem 5rem;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: var(--measure);
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 2.75rem;
+  }
+
+  /* ---------- Kopf ---------- */
+
+  header { padding-top: 3.5rem; display: flex; flex-direction: column; gap: .6rem; }
+
+  .eyebrow {
+    font-family: var(--f-mono);
+    font-size: .7rem;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  h1 {
+    font-family: var(--f-head);
+    font-weight: 700;
+    font-size: clamp(2rem, 6vw, 2.7rem);
+    line-height: 1.1;
+    letter-spacing: -.015em;
+    text-wrap: balance;
+    margin: 0;
+  }
+
+  .standfirst {
+    font-size: 1.1rem;
+    color: var(--muted);
+    max-width: 54ch;
+    margin: 0;
+  }
+
+  /* ---------- Abschnitte ---------- */
+
+  section { display: flex; flex-direction: column; gap: 1rem; }
+
+  h2 {
+    font-family: var(--f-head);
+    font-weight: 700;
+    font-size: 1.32rem;
+    line-height: 1.25;
+    text-wrap: balance;
+    margin: 0;
+    padding-bottom: .5rem;
+    border-bottom: 2px solid var(--accent);
+  }
+
+  h3 {
+    font-family: var(--f-body);
+    font-weight: 600;
+    font-size: 1rem;
+    margin: 0;
+  }
+
+  p { margin: 0; max-width: var(--measure); }
+
+  .lede { font-size: 1.05rem; }
+
+  strong { font-weight: 600; }
+
+  em.note {
+    font-style: italic;
+    color: var(--muted);
+  }
+
+  /* ---------- Merksatz ---------- */
+
+  .kernsatz {
+    background: var(--accent-soft);
+    border-left: 4px solid var(--accent);
+    padding: 1.1rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: .55rem;
+  }
+
+  .kernsatz p:first-child {
+    font-family: var(--f-head);
+    font-weight: 500;
+    font-size: 1.12rem;
+    line-height: 1.4;
+  }
+
+  .kernsatz p:last-child { color: var(--muted); font-size: .95rem; }
+
+  /* ---------- Auslöser → Handlung ---------- */
+
+  .regeln { display: flex; flex-direction: column; gap: 0; }
+
+  .regel {
+    display: grid;
+    grid-template-columns: 13rem 1fr;
+    gap: 0 1.5rem;
+    padding: .9rem 0;
+    border-top: 1px solid var(--rule);
+    align-items: start;
+  }
+
+  .regel:last-child { border-bottom: 1px solid var(--rule); }
+
+  .wenn {
+    font-family: var(--f-mono);
+    font-size: .82rem;
+    line-height: 1.5;
+    color: var(--accent);
+    padding-top: .12rem;
+  }
+
+  .dann { font-size: .98rem; }
+  .dann .warum { display: block; color: var(--muted); font-size: .88rem; margin-top: .15rem; }
+
+  @media (max-width: 34rem) {
+    .regel { grid-template-columns: 1fr; gap: .3rem; }
+  }
+
+  /* ---------- Nummerierte Folge ---------- */
+
+  ol.folge {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: .9rem;
+    counter-reset: schritt;
+  }
+
+  ol.folge > li {
+    counter-increment: schritt;
+    display: grid;
+    grid-template-columns: 2rem 1fr;
+    gap: 0 .9rem;
+    align-items: start;
+  }
+
+  ol.folge > li::before {
+    content: counter(schritt);
+    font-family: var(--f-mono);
+    font-weight: 600;
+    font-size: .8rem;
+    color: var(--accent);
+    background: var(--accent-soft);
+    width: 1.75rem;
+    height: 1.75rem;
+    display: grid;
+    place-items: center;
+    border-radius: 2px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  ol.folge .schritt-titel { font-weight: 600; }
+  ol.folge .schritt-text { display: block; color: var(--muted); font-size: .93rem; }
+  ol.folge .ort {
+    font-family: var(--f-mono);
+    font-size: .68rem;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border: 1px solid var(--rule);
+    padding: .05rem .35rem;
+    margin-left: .4rem;
+    white-space: nowrap;
+  }
+
+  /* ---------- Listen ---------- */
+
+  ul.strich {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: .55rem;
+  }
+
+  ul.strich > li {
+    padding-left: 1.1rem;
+    position: relative;
+    font-size: .98rem;
+  }
+
+  ul.strich > li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: .72em;
+    width: .5rem;
+    height: 1px;
+    background: var(--accent);
+  }
+
+  /* ---------- Code ---------- */
+
+  code {
+    font-family: var(--f-mono);
+    font-size: .86em;
+    background: var(--accent-soft);
+    color: var(--ink);
+    padding: .1rem .3rem;
+    border-radius: 2px;
+    white-space: nowrap;
+  }
+
+  pre {
+    font-family: var(--f-mono);
+    font-size: .84rem;
+    line-height: 1.6;
+    background: var(--card);
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--accent);
+    padding: .9rem 1rem;
+    margin: 0;
+    overflow-x: auto;
+  }
+
+  pre code {
+    background: none;
+    padding: 0;
+    font-size: inherit;
+    white-space: pre;
+  }
+
+  .code-label {
+    font-family: var(--f-mono);
+    font-size: .68rem;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: .35rem;
+    display: block;
+  }
+
+  /* ---------- Nicht tun ---------- */
+
+  .nicht h2 { border-bottom-color: var(--signal); }
+
+  .nicht .regel { border-top-color: var(--rule); }
+  .nicht .wenn { color: var(--signal); text-decoration: line-through; text-decoration-thickness: 1px; }
+
+  .warnung {
+    background: var(--signal-soft);
+    border-left: 4px solid var(--signal);
+    padding: 1rem 1.2rem;
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+    font-size: .98rem;
+  }
+
+  .warnung h3 { color: var(--signal); }
+
+  /* ---------- Fuß ---------- */
+
+  footer {
+    border-top: 1px solid var(--rule);
+    padding-top: 1.25rem;
+    color: var(--muted);
+    font-size: .88rem;
+    display: flex;
+    flex-direction: column;
+    gap: .4rem;
+  }
+
+  a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+  a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  * { box-sizing: border-box; }
+
+  @media print {
+    body { background: #fff; color: #000; font-size: 11pt; }
+    section { break-inside: avoid; }
+    pre { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header>
+    <span class="eyebrow">Kurzanleitung · Stand August 2026</span>
+    <h1>Der Claude-Code-Arbeitszyklus</h1>
+    <p class="standfirst">Sechs Gewohnheiten, die den Verbrauch etwa halbieren, ohne dass du weniger arbeitest. Du musst nichts konfigurieren.</p>
+  </header>
+
+  <section>
+    <div class="kernsatz">
+      <p>Claude Code schickt bei <em>jeder</em> Nachricht die gesamte bisherige Unterhaltung mit. Eine Sitzung, die seit dem Frühstück offen ist, bezahlt jede neue Frage mit dem ganzen Frühstück.</p>
+      <p>Daraus folgt alles Weitere: doppelt so lange Sitzung heißt nicht doppelt, sondern <strong>viermal</strong> so teuer. Kurze Sitzungen sind der ganze Trick — nicht Einstellungen, nicht kürzere Prompts.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Das Kernritual — nach jeder fertigen Aufgabe</h2>
+    <p class="lede">Wenn du nur eine Sache übernimmst, dann diese. Dauert 90 Sekunden.</p>
+
+    <ol class="folge">
+      <li>
+        <div>
+          <span class="schritt-titel">Übergabe schreiben lassen</span>
+          <span class="ort">Chat</span>
+          <span class="schritt-text">Eine Zeile: <code>Aktualisiere uebergabe/&lt;aufgabe&gt;.md nach dem Aufbau und den Regeln in der Datei.</code></span>
+        </div>
+      </li>
+      <li>
+        <div>
+          <span class="schritt-titel">Übergabe überfliegen</span>
+          <span class="ort">Editor</span>
+          <span class="schritt-text">Eine Frage: Könntest du morgen ohne diese Sitzung weiterarbeiten? Wenn nein, fehlt eine Entscheidung oder eine offene Frage — einmal nachfassen.</span>
+        </div>
+      </li>
+      <li>
+        <div>
+          <span class="schritt-titel">Committen</span>
+          <span class="ort">Terminal</span>
+          <span class="schritt-text">Damit ist der Codestand außerhalb der Unterhaltung gesichert. Der Agent muss sich nicht mehr erinnern, was er geändert hat.</span>
+        </div>
+      </li>
+      <li>
+        <div>
+          <span class="schritt-titel">Umbenennen, dann leeren</span>
+          <span class="ort">Chat</span>
+          <span class="schritt-text"><code>/rename crawl-tempo</code>, dann <code>/clear</code>. Über <code>/resume</code> findest du die Sitzung später wieder. <strong>Nicht <code>/compact</code></strong> — dazu unten.</span>
+        </div>
+      </li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>Wann tust du was</h2>
+    <p>Links der Auslöser, rechts die Handlung. Mehr Entscheidungen brauchst du im Alltag nicht.</p>
+
+    <div class="regeln">
+      <div class="regel">
+        <div class="wenn">Aufgabe fertig</div>
+        <div class="dann">Kernritual, dann <code>/clear</code>.<span class="warum">Nicht am Feierabend — nach <em>jeder</em> Aufgabe.</span></div>
+      </div>
+      <div class="regel">
+        <div class="wenn">Pause über 1 Stunde</div>
+        <div class="dann">Kernritual, dann <code>/clear</code> — auch mitten in der Aufgabe.<span class="warum">Nach einer Stunde ist der Zwischenspeicher kalt. Die erste Frage nach der Mittagspause ist sonst die teuerste des Tages.</span></div>
+      </div>
+      <div class="regel">
+        <div class="wenn">/context zeigt<br>Messages über 80k</div>
+        <div class="dann">Kernritual, dann <code>/clear</code>.<span class="warum"><code>/context</code> zeigt dir, wie voll die Unterhaltung ist. Einmal am Vormittag nachsehen genügt.</span></div>
+      </div>
+      <div class="regel">
+        <div class="wenn">Neue Aufgabe</div>
+        <div class="dann">Frische Sitzung, Übergabe einlesen, <code>Shift+Tab</code> für den Plan Mode.<span class="warum">Nie eine neue Aufgabe in eine laufende Sitzung hineinlegen.</span></div>
+      </div>
+      <div class="regel">
+        <div class="wenn">Mehr als eine Codedatei<br>betroffen — oder unklar,<br>welche</div>
+        <div class="dann"><code>Shift+Tab</code> bis „plan mode" dasteht, Plan lesen, dann freigeben.<span class="warum">Bei einer einzelnen, dir bekannten Stelle kannst du direkt beauftragen. Sobald mehrere Dateien im Spiel sind oder du sie erst suchen müsstest, lohnt der Plan: er kostet einen Bruchteil der Korrekturrunde, die eine falsche Richtung erzeugt.</span></div>
+      </div>
+      <div class="regel">
+        <div class="wenn">Läuft in die<br>falsche Richtung</div>
+        <div class="dann">Sofort <code>Esc</code>. Bei größerem Schaden <code>/rewind</code>.<span class="warum">Nicht auslaufen lassen und dann korrigieren — das zahlst du zweimal.</span></div>
+      </div>
+      <div class="regel">
+        <div class="wenn">Mechanische Arbeit<br>(umbenennen, formatieren)</div>
+        <div class="dann"><code>/model</code> auf Sonnet.<span class="warum">Opus für Entscheidungen. Nicht mitten in einer Aufgabe wechseln.</span></div>
+      </div>
+      <div class="regel">
+        <div class="wenn">git, cp, mkdir,<br>Datei öffnen</div>
+        <div class="dann">Selbst im Terminal machen.<span class="warum">Jeder Aufruf, den du dem Agenten abnimmst, spart Befehl <em>und</em> Ausgabe.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Der Auftrag — dieses Schema kopieren</h2>
+    <p>Die teuerste Sache überhaupt ist ein missverstandener Auftrag, weil er eine ganze Korrekturrunde erzeugt. Fünf Zeilen verhindern das.</p>
+
+    <div>
+      <span class="code-label">In den Chat, Platzhalter ersetzen</span>
+      <pre><code>Ziel: &lt;was danach anders ist, ein Satz&gt;
+Ort: &lt;datei/verzeichnis&gt; — sonst nichts anfassen
+Fertig, wenn: &lt;prüfbar: Test grün, Ausgabe X, Datei Y existiert&gt;
+Nicht: &lt;was ausdrücklich nicht dazugehört&gt;
+Bei Unklarheit: fragen, nicht die wahrscheinlichste
+Auslegung annehmen.</code></pre>
+    </div>
+
+    <p><em class="note">Die letzte Zeile ist die wichtigste. Eine Rückfrage kostet einen Zug, eine falsche Auslegung eine ganze Runde.</em></p>
+    <p>Und: konkret formulieren. „Eingabeprüfung in der Login-Funktion in <code>auth.ts</code>" statt „verbessere den Code" — vage Aufträge lösen eine Suche durch das halbe Projekt aus.</p>
+  </section>
+
+  <section>
+    <h2>Die Übergabe — einmal einrichten, dann eine Zeile</h2>
+    <p class="lede">Eine Datei je Aufgabe, die genau eine Frage beantwortet: <strong>Was muss jemand wissen, der morgen weiterarbeitet und diese Unterhaltung nie gesehen hat?</strong></p>
+    <p><code>/clear</code> löscht die Unterhaltung. Damit dabei nichts verloren geht, schreibst du vorher das weg, was <strong>nicht</strong> im Repository steht: Entscheidungen, Begründungen, offene Fragen. Code, Dateiinhalte und Fehlerausgaben gehören <em>nicht</em> hinein — die holst du jederzeit zurück.</p>
+    <p><em class="note">Nicht zu verwechseln mit der Regeldatei <code>CLAUDE.md</code> (in der Doku „memory" genannt). Die wird bei jedem Start automatisch geladen und enthält dauerhafte Regeln. Die Übergabe liegt still auf der Platte und wirkt nur, wenn du sie ausdrücklich einliest.</em></p>
+
+    <ul class="strich">
+      <li>Ordner <code>uebergabe/</code> im Projekt anlegen. <strong>Nicht</strong> in die <code>.gitignore</code> — das ist Projektgedächtnis.</li>
+      <li>Vorlage <code>uebergabe/_vorlage.md</code> einmal von Hand im Editor anlegen (Inhalt unten).</li>
+      <li>Je Aufgabe kopieren: <code>Copy-Item uebergabe/_vorlage.md uebergabe/crawl-tempo.md</code></li>
+      <li>Wie oft? Je <em>Aufgabe</em>, nicht je <code>/clear</code>. An einem Vormittag also null bis zwei Dateien — <code>/clear</code> machst du viel häufiger.</li>
+    </ul>
+
+    <div>
+      <span class="code-label">uebergabe/_vorlage.md</span>
+      <pre><code>&lt;!--
+REGELN — gelten für jede Aktualisierung dieser Datei:
+1. Belege als pfad:zeile. Keine Zitate, keine
+   Dateiinhalte, keine vollständigen Fehlerausgaben.
+2. Hinein gehört nur, was sich NICHT aus dem Repository
+   zurückholen lässt: Entscheidung, Begründung,
+   verworfene Alternative, offene Frage.
+3. "Nächster Schritt": genau einer, ohne Nachdenken
+   beginnbar.
+4. Nichts umschreiben, was schon dasteht. Nur ergänzen.
+--&gt;
+
+# &lt;Aufgabe&gt; — Stand &lt;Datum, Uhrzeit&gt;
+
+## Ziel
+Ein Satz. Was gilt als fertig.
+
+## Stand
+Was läuft, was nicht. Zwei bis fünf Zeilen.
+
+## Belege
+- pfad/zu/datei.ts:142      ← wo die Ursache sitzt
+- pfad/zu/test.spec.ts:88   ← der Test, der es zeigt
+
+## Entscheidungen
+- &lt;Entscheidung&gt; — weil &lt;Grund&gt;.
+  Verworfen: &lt;Alternative&gt;, weil &lt;Grund&gt;.
+
+## Offene Fragen
+- &lt;Frage&gt; — blockiert / blockiert nicht
+
+## Nächster Schritt
+Genau einer. So konkret, dass du ihn ohne Nachdenken
+beginnen kannst.</code></pre>
+    </div>
+
+    <p>Weil die Regeln <em>in der Datei</em> stehen, ist der Auftrag am Ende eine Zeile statt eines Absatzes. Und der Wiedereinstieg am nächsten Tag ist ebenfalls einer:</p>
+
+    <div>
+      <span class="code-label">Fortsetzung, frische Sitzung</span>
+      <pre><code>Lies uebergabe/crawl-tempo.md und mach beim
+"Nächsten Schritt" weiter.</code></pre>
+    </div>
+  </section>
+
+  <section>
+    <h2>Zwei Sonderfälle</h2>
+
+    <h3>Tests, Builds, Logs — Ausgabe in eine Datei</h3>
+    <p>Eine Testausgabe mit tausend Zeilen bezahlst du danach in <em>jedem</em> weiteren Zug mit. Also erst in eine Datei, dann nur die Fehlerzeilen ansehen:</p>
+    <div>
+      <span class="code-label">PowerShell</span>
+      <pre><code>New-Item -ItemType Directory -Force .tmp | Out-Null
+npm test *&gt; .tmp/test.log
+Select-String -Path .tmp/test.log -Pattern 'FAIL|Error' |
+  Select-Object -First 40</code></pre>
+    </div>
+    <p><em class="note"><code>.tmp/</code> in die <code>.gitignore</code>. Die vollständige Ausgabe bleibt auf der Platte und ist nachlesbar, falls der Filter zu grob war.</em></p>
+
+    <h3>Auf etwas Langes warten — nicht nachsehen</h3>
+    <p>Ein Build, ein Crawl, eine Migration. Jeder Blick „läuft es noch?" ist eine vollständige Anfrage mit der ganzen bisherigen Unterhaltung. Zwölf Blicke sind zwölf volle Anfragen.</p>
+    <ul class="strich">
+      <li>Abgesetzt starten und in eine Datei protokollieren lassen — der Agent kehrt sofort zurück.</li>
+      <li>In die Übergabe schreiben: wo das Protokoll liegt, welche Zeile „fertig" bedeutet, welche „gescheitert".</li>
+      <li>Kernritual, <code>/clear</code>, weggehen.</li>
+      <li>Später: frische Sitzung, Protokoll <strong>genau einmal</strong> auswerten.</li>
+    </ul>
+  </section>
+
+  <section class="nicht">
+    <h2>Was du nicht tust</h2>
+
+    <div class="regeln">
+      <div class="regel">
+        <div class="wenn">/compact reflexartig</div>
+        <div class="dann">Es liest die ganze Unterhaltung, um sie zusammenzufassen — bei großem Kontext ist es selbst eine große Anfrage. Übergabe plus <code>/clear</code> ist billiger und verliert weniger.</div>
+      </div>
+      <div class="regel">
+        <div class="wenn">Sitzung „für später"<br>offen lassen</div>
+        <div class="dann">Nach einer Stunde ist der Zwischenspeicher kalt und die nächste Frage zahlt den vollen Kontext. <code>/rename</code> und <code>/resume</code> leisten dasselbe ohne diese Kosten.</div>
+      </div>
+      <div class="regel">
+        <div class="wenn">Agent Teams</div>
+        <div class="dann">Rund siebenmal so viele Token wie eine normale Sitzung, weil jeder Mitspieler eine eigene Unterhaltung führt. Der schnellste Weg in die Wochengrenze.</div>
+      </div>
+      <div class="regel">
+        <div class="wenn">Subagenten<br>aus Gewohnheit</div>
+        <div class="dann">Ihre Token zählen voll mit. Nur wenn wirklich viele Dateien oder Quellen parallel durchzusehen sind — nicht für etwas, das eine gezielte Suche in einem Zug erledigt.</div>
+      </div>
+      <div class="regel">
+        <div class="wenn">Am Wortlaut der<br>Prompts feilen</div>
+        <div class="dann">Ein paar Dutzend Token gegen Zehntausende aus Kontextresten. <em>Präzision</em> im Auftrag lohnt, <em>Kürze</em> in der Formulierung praktisch nicht.</div>
+      </div>
+      <div class="regel">
+        <div class="wenn">Auf freien Platz<br>im Fenster vertrauen</div>
+        <div class="dann">„83 % frei" heißt nicht sparsam. Jeder Zug zahlt den belegten Teil in voller Höhe. Ein großes Fenster macht lange Sitzungen <em>möglich</em>, nicht <em>billig</em>.</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="warnung">
+      <h3>Wo du nicht sparst</h3>
+      <p>Es gibt Fälle, in denen der <strong>exakte Wortlaut einer Ausgabe der Befund ist</strong>. Dort schaltest du jede Filterung ab und lässt die volle Ausgabe zu:</p>
+      <ul class="strich">
+        <li>Berechtigungen prüfen</li>
+        <li>Zeichen oder Token zählen</li>
+        <li>Prüfen, ob etwas in einer Liste erscheint</li>
+        <li>Fehlermeldungen auswerten — die Ursache steht oft in der Nebenzeile, die ein Filter für Rauschen hält</li>
+        <li>Etwas zum ersten Mal belegen: solange du nicht weißt, was der Befund ist, weißt du nicht, was du wegwerfen darfst</li>
+      </ul>
+      <p>Und noch eine Falle: Frag den Agenten nicht, ob er etwas „schon oft gemacht" hat. Er kennt seinen eigenen Verlauf nicht zuverlässig und antwortet plausibel statt richtig. Wenn du zählen willst, verlange Belegstellen und erlaube ausdrücklich die Antwort „nicht belegbar".</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Woran du merkst, dass es sitzt</h2>
+    <p><code>/usage</code> im Chat, dann <code>w</code> für die Wochenansicht. Zwei Zahlen genügen:</p>
+    <ul class="strich">
+      <li><strong>Anfragen je Sitzung.</strong> Unter 40 ist das Ziel. Daran hängt der ganze Effekt.</li>
+      <li><strong>Die Hinweise „long context" und „8+ hour sessions".</strong> Verschwinden sie, sitzt der Zyklus. Bleiben sie, ist es eine Gewohnheitsfrage — keine Einstellungsfrage.</li>
+    </ul>
+    <p>Ehrliche Gegenprobe, damit das kein Selbstzweck wird: <strong>Ist etwas schlechter geworden?</strong> Musstest du eine Information zweimal beschaffen, weil sie in der Übergabe fehlte, gehört diese Kategorie in die Vorlage. Sparsamkeit soll Züge für die eigentliche Arbeit freistellen, nichts weiter.</p>
+  </section>
+
+  <footer>
+    <p>Kurzfassung von <em>Kontexthaushalt</em> (Messung vom 21. August 2026, Pro-Plan). Die Langfassung enthält die Zahlen, die Messmethode und die Begründung jeder Regel.</p>
+    <p>Mechanik und Befehle: <a href="https://code.claude.com/docs/en/costs">code.claude.com/docs/en/costs</a>. Claude Code ändert sich schnell — Befehle im Zweifel gegen die Doku prüfen.</p>
+  </footer>
+
+</div>
+
+</body>
+</html>
